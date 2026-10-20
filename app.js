@@ -1,16 +1,113 @@
-const places=[{name:"Tallinn",x:535,y:135},{name:"New York",x:270,y:165},{name:"São Paulo",x:330,y:350},{name:"Tokyo",x:845,y:190},{name:"Sydney",x:870,y:390},{name:"London",x:485,y:145},{name:"Singapore",x:760,y:315},{name:"Cape Town",x:555,y:390}];
+const places=[{
+  name:"Tallinn",x:535,y:135
+},{
+  name:"New York",x:270,y:165
+},{
+  name:"São Paulo",x:330,y:350
+},{
+  name:"Tokyo",x:845,y:190
+},{
+  name:"Sydney",x:870,y:390
+},{
+  name:"London",x:485,y:145
+},{
+  name:"Singapore",x:760,y:315
+},{
+  name:"Cape Town",x:555,y:390
+}];
 const types=["Kahtlane sisselogimiskatse","Portide skannimine","Ebatavaline võrguliiklus","Tulemüüri hoiatus","Võimalik andmepäring"];
 let total=0,blocked=0,active=0,running=true;
 const $=id=>document.getElementById(id);
-function tickClock(){$("clock").textContent=new Date().toLocaleString("et-EE")}
-function addEvent(){const a=places[Math.floor(Math.random()*places.length)],b=places[Math.floor(Math.random()*places.length)];if(a===b)return;total++;const stopped=Math.random()>.25;if(stopped)blocked++;else active++;$("total").textContent=total;$("blocked").textContent=blocked;$("active").textContent=active;
-const row=document.createElement("div");row.className="event"+(stopped?" ok":"");const time=document.createElement("time");time.textContent=new Date().toLocaleTimeString("et-EE");const title=document.createElement("strong");title.textContent=stopped?"✓ BLOKEERITUD":"⚠ JÄLGIMISEL";const desc=document.createElement("p");desc.textContent=types[Math.floor(Math.random()*types.length)]+" · "+a.name+" → "+b.name;row.append(time,title,desc);$("events").prepend(row);while($("events").children.length>12)$("events").lastChild.remove();
-const svgNS="http://www.w3.org/2000/svg",line=document.createElementNS(svgNS,"line");for(const [k,v] of Object.entries({x1:a.x,y1:a.y,x2:b.x,y2:b.y}))line.setAttribute(k,v);$("routes").append(line);const dot=document.createElementNS(svgNS,"circle");dot.setAttribute("cx",b.x);dot.setAttribute("cy",b.y);dot.setAttribute("r",6);$("nodes").append(dot);setTimeout(()=>{line.remove();dot.remove();if(!stopped){active=Math.max(0,active-1);$("active").textContent=active}},2400)}
-$("toggle").addEventListener("click",()=>{running=!running;$("toggle").textContent=running?"⏸ Peata simulatsioon":"▶ Jätka simulatsiooni"});$("add").addEventListener("click",addEvent);setInterval(()=>{if(running)addEvent()},2200);setInterval(tickClock,1000);tickClock();addEvent();
+function tickClock(){
+  $("clock").textContent=new Date().toLocaleString("et-EE")
+}
+function addEvent(){
+  const a=places[Math.floor(Math.random()*places.length)],b=places[Math.floor(Math.random()*places.length)];
+  if(a===b)return;
+  total++;
+  const stopped=Math.random()>.25;
+  if(stopped)blocked++;
+  else active++;
+  $("total").textContent=total;
+  $("blocked").textContent=blocked;
+  $("active").textContent=active;
+  const row=document.createElement("div");
+  row.className="event"+(stopped?" ok":"");
+  const time=document.createElement("time");
+  time.textContent=new Date().toLocaleTimeString("et-EE");
+  const title=document.createElement("strong");
+  title.textContent=stopped?"✓ BLOKEERITUD":"⚠ JÄLGIMISEL";
+  const desc=document.createElement("p");
+  desc.textContent=types[Math.floor(Math.random()*types.length)]+" · "+a.name+" → "+b.name;
+  row.append(time,title,desc);
+  $("events").prepend(row);
+  while($("events").children.length>12)$("events").lastChild.remove();
+  const svgNS="http://www.w3.org/2000/svg",line=document.createElementNS(svgNS,"line");
+  for(const [k,v] of Object.entries({
+    x1:a.x,y1:a.y,x2:b.x,y2:b.y
+  }))line.setAttribute(k,v);
+  $("routes").append(line);
+  const dot=document.createElementNS(svgNS,"circle");
+  dot.setAttribute("cx",b.x);
+  dot.setAttribute("cy",b.y);
+  dot.setAttribute("r",6);
+  $("nodes").append(dot);
+  setTimeout(()=>{
+    line.remove();dot.remove();if(!stopped){
+      active=Math.max(0,active-1);$("active").textContent=active
+    }
+  },2400)
+}
+$("toggle").addEventListener("click",()=>{
+  running=!running;$("toggle").textContent=running?"⏸ Peata simulatsioon":"▶ Jätka simulatsiooni"
+});
+$("add").addEventListener("click",addEvent);
+setInterval(()=>{
+  if(running)addEvent()
+},2200);
+setInterval(tickClock,1000);
+tickClock();
+addEvent();
 // v2.0: local, simulated threat analysis and command terminal
-const levels=[{name:"LOW",color:"#5ce5ad"},{name:"MEDIUM",color:"#f5cf69"},{name:"HIGH",color:"#ff9969"},{name:"CRITICAL",color:"#ff607d"}];
+const levels=[{
+  name:"LOW",color:"#5ce5ad"
+},{
+  name:"MEDIUM",color:"#f5cf69"
+},{
+  name:"HIGH",color:"#ff9969"
+},{
+  name:"CRITICAL",color:"#ff607d"
+}];
 const counts=[0,0,0,0];
-function drawBars(){const root=$("threatBars");root.replaceChildren();levels.forEach((level,i)=>{const row=document.createElement("div");row.className="bar-row";const label=document.createElement("div");label.className="bar-label";const name=document.createElement("span");name.textContent=level.name;const count=document.createElement("span");count.textContent=counts[i];label.append(name,count);const track=document.createElement("div");track.className="bar-track";const fill=document.createElement("div");fill.className="bar-fill";fill.style.background=level.color;fill.style.width=(counts[i]?Math.max(5,counts[i]/Math.max(1,...counts)*100):0)+"%";track.append(fill);row.append(label,track);root.append(row)})}
-const originalAddEvent=addEvent;addEvent=function(){const previous=total;originalAddEvent();if(total>previous){const roll=Math.random(),i=roll<.5?0:roll<.8?1:roll<.95?2:3;counts[i]++;drawBars()}};
-const output=$("terminalOutput");function terminalPrint(message){output.append(document.createTextNode("\n"+message));output.scrollTop=output.scrollHeight}
-$("terminalForm").addEventListener("submit",e=>{e.preventDefault();const input=$("terminalInput");const command=input.value.trim().toLowerCase();input.value="";if(!command)return;terminalPrint("> "+command);if(command==="help")terminalPrint("Käsud: help, status, scan, clear, pause, resume");else if(command==="status")terminalPrint("SIMULATSIOON: "+(running?"AKTIIVNE":"PEATATUD")+" | Sündmused: "+total+" | Blokeeritud: "+blocked);else if(command==="scan"){terminalPrint("Kohalik näidisskann lõpetatud. Päris võrke ei skannitud.");addEvent()}else if(command==="clear")output.textContent="";else if(command==="pause"||command==="resume"){const desired=command==="resume";if(running!==desired)$("toggle").click();terminalPrint("Simulatsioon "+(running?"jätkub.":"peatatud."))}else terminalPrint("Tundmatu käsk. Proovi help.")});drawBars();
+function drawBars(){
+  const root=$("threatBars");
+  root.replaceChildren();
+  levels.forEach((level,i)=>{
+    const row=document.createElement("div");row.className="bar-row";const label=document.createElement("div");label.className="bar-label";const name=document.createElement("span");name.textContent=level.name;const count=document.createElement("span");count.textContent=counts[i];label.append(name,count);const track=document.createElement("div");track.className="bar-track";const fill=document.createElement("div");fill.className="bar-fill";fill.style.background=level.color;fill.style.width=(counts[i]?Math.max(5,counts[i]/Math.max(1,...counts)*100):0)+"%";track.append(fill);row.append(label,track);root.append(row)
+  })
+}
+const originalAddEvent=addEvent;
+addEvent=function(){
+  const previous=total;
+  originalAddEvent();
+  if(total>previous){
+    const roll=Math.random(),i=roll<.5?0:roll<.8?1:roll<.95?2:3;
+    counts[i]++;
+    drawBars()
+  }
+};
+const output=$("terminalOutput");
+function terminalPrint(message){
+  output.append(document.createTextNode("\n"+message));
+  output.scrollTop=output.scrollHeight
+}
+$("terminalForm").addEventListener("submit",e=>{
+  e.preventDefault();const input=$("terminalInput");const command=input.value.trim().toLowerCase();input.value="";if(!command)return;terminalPrint("> "+command);if(command==="help")terminalPrint("Käsud: help, status, scan, clear, pause, resume");else if(command==="status")terminalPrint("SIMULATSIOON: "+(running?"AKTIIVNE":"PEATATUD")+" | Sündmused: "+total+" | Blokeeritud: "+blocked);else if(command==="scan"){
+    terminalPrint("Kohalik näidisskann lõpetatud. Päris võrke ei skannitud.");addEvent()
+  }
+  else if(command==="clear")output.textContent="";else if(command==="pause"||command==="resume"){
+    const desired=command==="resume";if(running!==desired)$("toggle").click();terminalPrint("Simulatsioon "+(running?"jätkub.":"peatatud."))
+  }
+  else terminalPrint("Tundmatu käsk. Proovi help.")
+});
+drawBars();
