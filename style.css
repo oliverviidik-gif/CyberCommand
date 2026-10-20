@@ -300,3 +300,35 @@ footer span{
     grid-template-columns:1fr
   }
 }
+
+/* Event log filters */
+.event-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 18px 4px;
+}
+
+.event-filters button {
+  padding: 8px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  background: #102a39;
+  border: 1px solid #285368;
+  color: #a5cbd8;
+}
+
+.event-filters button.selected {
+  color: #061923;
+  background: #64dff3;
+  border-color: #64dff3;
+}
+
+#routes line {
+  stroke-dasharray: 8 8;
+  animation: flow 1s linear infinite;
+}
+
+#nodes circle {
+  filter: drop-shadow(0 0 8px currentColor);
+}
